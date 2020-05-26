@@ -1,0 +1,4 @@
+﻿  main.cpp
+D:\1_Projects\200522_SphereHarmonicLighting\cpp\SHLighting\SHLighting\main.cpp(125,9): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
+D:\1_Projects\200522_SphereHarmonicLighting\cpp\SHLighting\SHLighting\main.cpp(125,9): message : consider using '%zd' in the format string
+  SHLighting.vcxproj -> D:\1_Projects\200522_SphereHarmonicLighting\cpp\SHLighting\x64\Debug\SHLighting.exe

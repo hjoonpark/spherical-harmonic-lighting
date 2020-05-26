@@ -1,12 +1,98 @@
 import numpy as np
 import random
 import math
+import vtk
 
 class SHSample:
     def __init__(self):
         self.sph = None
         self.vec = None
         self.coeffs = None
+
+def load_obj(obj_path):
+    with open(obj_path, 'r') as f:
+        lines = f.readlines()
+        vs = []
+        vts = []
+        vns = []
+        faces = []
+        f_idx = 0
+        for line in lines:
+            l = line.split(' ')
+            if l[0] == 'v':
+                vs.append([float(l[1]), float(l[2]), float(l[3])])
+            elif l[0] == 'vt':
+                vts.append([float(l[1]), float(l[2])])
+            elif l[0] == 'vn':
+                vns.append([float(l[1]), float(l[2]), float(l[3])])
+            elif l[0] == 'f':
+                fis = []
+                for i in range(1, len(l)):
+                    v = l[i].split('/')
+                    fi = [int(v[0]), int(v[1]), int(v[2])]
+                    fis.append(fi)
+                faces.append(fis)
+                f_idx += 1
+        f.close()
+    return {'vs': np.float32(vs), 'vns': np.float32(vns), 'vts': np.float32(vts), 'faces': faces}
+
+def get_unique_vertex_normal_pairs(obj_data):
+    """
+    f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3
+
+    out: vertex_data = list of dict: [{'vertex': 3d, 'normal': 3d}]
+    """
+    faces = obj_data['faces']
+    vs = obj_data['vs']
+    vns = obj_data['vns']
+    vns_avged = np.zeros(vs.shape).astype(np.float32)
+    vns_count = np.zeros(len(vs)).astype(np.uint8)
+
+    for f in faces:
+        for fi in f:
+            vertex_idx = fi[0] - 1
+            normal_idx = fi[2] - 1
+            vns_avged[vertex_idx] += vns[normal_idx]
+            vns_count[vertex_idx] += 1
+
+    for i in range(vns_avged.shape[0]):
+        vns_avged[i] /= vns_count[i]
+
+    vertex_data = []
+    for i in range(vs.shape[0]):
+        v = {'vertex': vs[i], 'normal': vns_avged[i]}
+        vertex_data.append(v)
+    return vertex_data
+
+def compute_transfer_matrix(samples, n_coeff: int, vertex_data):
+    """
+    vertex_data = [{'vertex': 3d, 'normal': 3d}]
+    """
+    albedo = np.float32([1, 1, 1]) # assume white texture for the obj's surface
+
+    for v_idx, v_data in enumerate(vertex_data):
+        normal = v_data['normal']
+        coeff = np.zeros((n_coeff, 3)).astype(np.float32) # 3 for rgb
+
+        for sample in samples: # sum over all samples of light source
+            H = sample.vec.dot(normal)
+            if H > 0.0:
+                # light ray inside hemisphere centered at the vertex point. SH project over all bands into the sum vector
+                for j in range(n_coeff):
+                    c_j = H * sample.coeffs[j]
+                    coeff[j, 0] += albedo[0] * c_j
+                    coeff[j, 1] += albedo[1] * c_j
+                    coeff[j, 2] += albedo[2] * c_j
+        # device the result by probability / number of samples
+        factor = (4.0*np.pi) / len(samples)
+        for j in range(n_coeff):
+            coeff[j, :] *= factor
+        vertex_data[v_idx]['transfer_vector'] = coeff
+
+    return vertex_data
+
+
+
 
 def SH_setup_spherical_samples(sqrt_n_samples: int, n_bands: int):
     samples = []
@@ -25,7 +111,6 @@ def SH_setup_spherical_samples(sqrt_n_samples: int, n_bands: int):
             counts_i += 1
 
             sh = SHSample()
-
             x = (a + random.uniform(0, 1)) * one_over_N
             y = (b + random.uniform(0, 1)) * one_over_N
             theta = 2.0*math.acos(math.sqrt(1.0 - x))
@@ -87,12 +172,14 @@ def SH(l: int, m: int, theta, phi):
     elif m > 0:
         return math.sqrt(2.0) * K(l, m) * math.cos(m*phi) * P(l, m, math.cos(theta))
     else:
-        return math.sqrt(2.0) * K(l, m) * math.sin(-m*phi) * P(l, -m, math.cos(theta))
+        return math.sqrt(2.0) * K(l, -m) * math.sin(-m*phi) * P(l, -m, math.cos(theta))
 
-def SH_project_polar_function(light_polar_fn, samples):
+def SH_project_polar_function(polar_fn, samples):
     """
     SH projection
     c_i = 4pi/N * sum_{j=1}^{N} light(x_j)*y_i(x_j)
+      i: SH coefficient index
+      N: number of samples
     """
     n_coeffs = len(samples[0].coeffs)
     c = np.empty(n_coeffs).astype(np.float32)
@@ -100,7 +187,7 @@ def SH_project_polar_function(light_polar_fn, samples):
     for sample in samples:
         theta = sample.sph[0]
         phi = sample.sph[1]
-        L = light_polar_fn(theta, phi)
+        L = polar_fn(theta, phi)
         for n in range(n_coeffs):
             c[n] += L * sample.coeffs[n]
 

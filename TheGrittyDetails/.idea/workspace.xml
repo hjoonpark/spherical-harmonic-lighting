@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="07f53224-040b-4aad-a105-861dc1423307" name="Default Changelist" comment="" />
+    <list default="true" id="07f53224-040b-4aad-a105-861dc1423307" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../2_SH_TheGrittyDetails.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/../2_SH_TheGrittyDetails.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../2_data/output/plots.png" beforeDir="false" afterPath="$PROJECT_DIR$/../2_data/output/plots.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sh.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src_code.cpp" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -14,7 +21,12 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="JupyterTrust" id="3e6e88b3-d10e-47c0-85da-cc52d5bd9cdb" />
   <component name="ProjectId" id="1cNmMBEgUfzg6u2ARROYVE27CcB" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
@@ -22,6 +34,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
   </component>
   <component name="RunDashboard">
@@ -92,7 +105,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1590377374992</updated>
-      <workItem from="1590377376167" duration="13386000" />
+      <workItem from="1590377376167" duration="25949000" />
     </task>
     <servers />
   </component>
